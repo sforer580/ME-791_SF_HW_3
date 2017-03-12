@@ -36,9 +36,11 @@ public:
     void Build_Reward_Table();
     void Assign_Boundaries_To_Q_Table();
     void Assign_Values_To_Reward_Table();
+    void Build_Walls();
     void Build_Board();
     void Display_Board();
     void Display_Reward_Table();
+    int Check_If_At_Wall(int new_x, int new_y);
     //Agent Functions
     void Build_Population();
     void Build_Q_Table();
@@ -49,6 +51,7 @@ public:
     //Auto Control Functions
     void Auto_Move_Agent();
     void Run_Auto_Control();
+    int cs;
     //Q_Leaner Control Functions
     void Sense();
     void Decide();
@@ -327,6 +330,114 @@ void Q_Learner::Display_Board()
 
 
 //-------------------------------------------------------------------------
+//Builds the walls in the eniviornment
+void Q_Learner::Build_Walls()
+{
+    int a=-1;
+    int b=-1;
+    int c=-1;
+    if(agent.at(0).x < pP->goal_x && agent.at(0).y < pP->goal_y)
+    {
+        a = (pP->goal_x) + ((pP->goal_y-1)*pP->x_dim);
+        //b = (pP->goal_x-1) + ((pP->goal_y)*pP->x_dim);
+        if (pP->goal_x < pP->x_dim-1)
+        {
+            //c = (pP->goal_x+1) + ((pP->goal_y)*pP->x_dim);
+        }
+    }
+    else if(agent.at(0).x == pP->goal_x && agent.at(0).y < pP->goal_y)
+    {
+        a = (pP->goal_x) + ((pP->goal_y-1)*pP->x_dim);
+        if (pP->goal_x > 0)
+        {
+            //b = (pP->goal_x-1) + ((pP->goal_y)*pP->x_dim);
+        }
+        if (pP->goal_x < pP->x_dim-1)
+        {
+           // c = (pP->goal_x+1) + ((pP->goal_y)*pP->x_dim);
+        }
+    }
+    else if(agent.at(0).x > pP->goal_x && agent.at(0).y < pP->goal_y)
+    {
+        a = (pP->goal_x) + ((pP->goal_y-1)*pP->x_dim);
+        if (pP->goal_x > 0)
+        {
+           // b = (pP->goal_x-1) + ((pP->goal_y)*pP->x_dim);
+        }
+        //c = (pP->goal_x+1) + ((pP->goal_y)*pP->x_dim);
+    }
+    
+    else if(agent.at(0).x < pP->goal_x && agent.at(0).y == pP->goal_y)
+    {
+        a = (pP->goal_x) + ((pP->goal_y-1)*pP->x_dim);
+        if (pP->goal_y < pP->y_dim-1)
+        {
+            //b = (pP->goal_x) + ((pP->goal_y+1)*pP->x_dim);
+        }
+        if (pP->goal_y > 0)
+        {
+            //c = (pP->goal_x) + ((pP->goal_y-1)*pP->x_dim);
+        }
+    }
+    else if(agent.at(0).x > pP->goal_x && agent.at(0).y == pP->goal_y)
+    {
+        a = (pP->goal_x) + ((pP->goal_y-1)*pP->x_dim);
+        if (pP->goal_y < pP->y_dim-1)
+        {
+            //b = (pP->goal_x) + ((pP->goal_y+1)*pP->x_dim);
+        }
+        if (pP->goal_y > 0)
+        {
+           // c = (pP->goal_x) + ((pP->goal_y-1)*pP->x_dim);
+        }
+    }
+    
+    else if(agent.at(0).x < pP->goal_x && agent.at(0).y > pP->goal_y)
+    {
+        a = (pP->goal_x) + ((pP->goal_y-1)*pP->x_dim);
+       // b = (pP->goal_x-1) + ((pP->goal_y)*pP->x_dim);
+        if (pP->goal_x < pP->x_dim-1)
+        {
+           // c = (pP->goal_x+1) + ((pP->goal_y)*pP->x_dim);
+        }
+    }
+    else if(agent.at(0).x == pP->goal_x && agent.at(0).y > pP->goal_y)
+    {
+        a = (pP->goal_x) + ((pP->goal_y-1)*pP->x_dim);
+        if (pP->goal_x > 0)
+        {
+           // b = (pP->goal_x-1) + ((pP->goal_y)*pP->x_dim);
+        }
+        if (pP->goal_x < pP->x_dim-1)
+        {
+           // c = (pP->goal_x+1) + ((pP->goal_y)*pP->x_dim);
+        }
+    }
+    else if(agent.at(0).x > pP->goal_x && agent.at(0).y > pP->goal_y)
+    {
+        a = (pP->goal_x) + ((pP->goal_y-1)*pP->x_dim);
+        if (pP->goal_x > 0)
+        {
+           // b = (pP->goal_x-1) + ((pP->goal_y)*pP->x_dim);
+        }
+        //c = (pP->goal_x+1) + ((pP->goal_y)*pP->x_dim);
+    }
+    if (a >= 0)
+    {
+        pP->walls.push_back(a);
+    }
+    if (b >= 0)
+    {
+        pP->walls.push_back(b);
+    }
+    if (c >= 0)
+    {
+        pP->walls.push_back(c);
+    }
+}
+
+
+//-------------------------------------------------------------------------
 //Builds the grid world
 void Q_Learner::Build_Grid_World()
 {
@@ -335,6 +446,7 @@ void Q_Learner::Build_Grid_World()
     Assign_Goal_Location();
     Assign_Goal_Value();
     Build_Reward_Table();
+    Build_Walls();
     //cout << "INTIAL GRID" << endl;
     //Display_Board();
 }
@@ -405,6 +517,30 @@ void Q_Learner::Run_Human_Control()
 }
 
 
+//-------------------------------------------------------------------------
+//Chercks if the agetn is at a wall
+int Q_Learner::Check_If_At_Wall(int new_x, int new_y)
+{
+    int c = 0;
+    int new_state;
+    new_state = new_x + (new_y*pP->y_dim);
+    for (int w=0; w<pP->walls.size(); w++)
+    {
+        if (new_state == pP->walls.at(w))
+        {
+            //cout << "HIT WALL" << endl;
+            c = 1;
+        }
+    }
+    /*
+    if (new_state == (pP->goal_x + (pP->goal_y*pP->x_dim)))
+    {
+        cout << "ALMOST THERE" << endl;
+    }
+     */
+    return c;
+}
+
 
 //-------------------------------------------------------------------------
 //Auto moves the agent
@@ -443,12 +579,37 @@ void Q_Learner::Auto_Move_Agent()
     }
     else
     {
+        int cc = 0;
+        cc = Check_If_At_Wall(new_x, new_y);
         pE->board.at(agent.at(0).y).at(agent.at(0).x) = 0;
-        agent.at(0).x = new_x;
-        agent.at(0).y = new_y;
+        if (cc == 0)
+        {
+            agent.at(0).x = new_x;
+            agent.at(0).y = new_y;
+        }
+        if (cc == 1)
+        {
+            new_x = agent.at(0).x;
+            new_y = agent.at(0).y;
+        }
         pE->board.at(agent.at(0).y).at(agent.at(0).x) = 1;
     }
+    agent.at(0).state = agent.at(0).x + (agent.at(0).y*pP->x_dim);
+    agent.at(0).path.push_back(agent.at(0).state);
     Display_Board();
+    if (agent.at(0).path.at(agent.at(0).path.size()-1) == agent.at(0).path.at(agent.at(0).path.size()-2))
+    {
+        cout << "AGENT IS STUCK" << endl;
+        cout << "TEST A PASSED" << endl;
+        pE->board.at(agent.at(0).y).at(agent.at(0).x) = 0;
+        cs = 1;
+    }
+    if (agent.at(0).path.size() >= 2)
+    {
+        //int a = agent.at(0).path.at(agent.at(0).path.size()-1);
+        //int b =agent.at(0).path.at(agent.at(0).path.size()-2);
+        //assert(agent.at(0).path.at(agent.at(0).path.size()-1) != agent.at(0).path.at(agent.at(0).path.size()-2));
+    }
 }
 
 
@@ -461,17 +622,26 @@ void Q_Learner::Run_Auto_Control()
 {
     cout << "------------------------------------------------------------------------" << endl;
     cout << "RULE OF THUMB" << endl;
+    cs = 0;
     Build_Grid_World();
     while ((agent.at(0).x != pP->goal_x))
     {
         Auto_Move_Agent();
+        if (cs == 1)
+        {
+            break;
+        }
         while ((agent.at(0).y != pP->goal_y))
         {
             Auto_Move_Agent();
+            if (cs == 1)
+            {
+                break;
+            }
         }
     }
-    cout << "REACHED GOAL!!!!!!" << endl;
-    cout << "TEST C PASSED" << endl;
+    //cout << "REACHED GOAL!!!!!!" << endl;
+    //cout << "TEST C PASSED" << endl;
     cout << endl;
 }
 
@@ -575,11 +745,24 @@ void Q_Learner::Greedy_Move()
     }
     else
     {
+        int cc = 0;
+        cc = Check_If_At_Wall(new_x, new_y);
         pE->board.at(agent.at(0).y).at(agent.at(0).x) = 0;
-        agent.at(0).x = new_x;
-        agent.at(0).y = new_y;
+        if (cc == 0)
+        {
+            agent.at(0).x = new_x;
+            agent.at(0).y = new_y;
+        }
+        if (cc == 1)
+        {
+            new_x = agent.at(0).x;
+            new_y = agent.at(0).y;
+        }
         pE->board.at(agent.at(0).y).at(agent.at(0).x) = 1;
     }
+    agent.at(0).state = agent.at(0).x + (agent.at(0).y*pP->x_dim);
+    agent.at(0).path.push_back(agent.at(0).state);
+    //Display_Board();
     int ss = agent.at(0).x + (agent.at(0).y*pP->x_dim);
     agent.at(0).path.push_back(ss);
     agent.at(0).actions.push_back(move);
@@ -622,11 +805,24 @@ void Q_Learner::Random_Move()
     }
     else
     {
+        int cc = 0;
+        cc = Check_If_At_Wall(new_x, new_y);
         pE->board.at(agent.at(0).y).at(agent.at(0).x) = 0;
-        agent.at(0).x = new_x;
-        agent.at(0).y = new_y;
+        if (cc == 0)
+        {
+            agent.at(0).x = new_x;
+            agent.at(0).y = new_y;
+        }
+        if (cc == 1)
+        {
+            new_x = agent.at(0).x;
+            new_y = agent.at(0).y;
+        }
         pE->board.at(agent.at(0).y).at(agent.at(0).x) = 1;
     }
+    agent.at(0).state = agent.at(0).x + (agent.at(0).y*pP->x_dim);
+    agent.at(0).path.push_back(agent.at(0).state);
+    //Display_Board();
     int ss = agent.at(0).x + (agent.at(0).y*pP->x_dim);
     agent.at(0).path.push_back(ss);
     agent.at(0).actions.push_back(r);
@@ -660,7 +856,7 @@ void Q_Learner::React()
     double B = agent.at(0).q_table.at(ss).at(best);
     double R = pE->reward_table.at(ss);
     agent.at(0).q_table.at(s).at(action) = A+pP->alpha*(R+(pP->gamma*B)-A);
-    Run_Test_D(s, action);
+    //Run_Test_D(s, action);
 }
 
 
@@ -814,34 +1010,29 @@ void Q_Learner::Run_Q_Learner_Control(int sr)
     Build_Q_Table();
     for (int t=0; t<pP->num_tries; t++)
     {
-        cout << "SR" << sr << "::" << t << endl;
-        cout << endl;
+        //cout << "SR" << sr << "::" << t << endl;
+        //cout << endl;
         Build_Grid_World();
         Build_Q_Table();
         //cout << "BEGIN Q_LEANER" << endl;
         //cout << endl;
         int move_counter = 0;
-        while ((agent.at(0).x != pP->goal_x))
+        while ((agent.at(0).state != pP->goal_state))
         {
             move_counter += 1;
             //cout << "MOVE NUMBER" << "\t" << move_counter << endl;
             Q_Learner_Move_Agent();
-            while ((agent.at(0).y != pP->goal_y))
-            {
-                move_counter += 1;
-                //cout << "MOVE NUMBER" << "\t" << move_counter << endl;
-                Q_Learner_Move_Agent();
-            }
         }
         assert(agent.at(0).x == pP->goal_x && agent.at(0).y == pP->goal_y);
-        //cout << "REACHED GOAL!!!!!" << endl;
-        //cout << "NUMBER OF MOVES" << "\t" << move_counter << endl;
+        cout << "REACHED GOAL!!!!!" << endl;
+        cout << "NUMBER OF MOVES" << "\t" << move_counter << endl;
+        cout << "TEST B PASSED" << endl;
         Store_Move_Data(move_counter);
         Reset_Agent_Info();
         Assign_Starting_Location();
-        Run_Test_E();
+        //Run_Test_E();
     }
-    Run_Test_F(sr);
+    //Run_Test_F(sr);
     Write_Q_Table_To_File();
     Write_Move_Data_To_File();
 }
@@ -1233,7 +1424,7 @@ void Q_Learner::Run_Test_G(int sr)
             move_counter += 1;
             if (move_counter > 1000000)
             {
-                cout << "CP" << endl;
+                cout << "CAUGHT IN LOOP" << endl;
             }
             Q_Learner_Move_Agent_2();
             while ((agent.at(0).y != pP->goal_y))
@@ -1242,7 +1433,7 @@ void Q_Learner::Run_Test_G(int sr)
                 move_counter += 1;
                 if (move_counter > 1000000)
                 {
-                    cout << "CP" << endl;
+                    cout << "CAUGHT IN LOOP" << endl;
                 }
                 Q_Learner_Move_Agent_2();
             }
@@ -1264,7 +1455,7 @@ void Q_Learner::Run_Test_G(int sr)
 void Q_Learner::Run_Program(int sr)
 {
     //Run_Human_Control();
-    //Run_Auto_Control();
+    Run_Auto_Control();
     Run_Q_Learner_Control(sr);
 }
 

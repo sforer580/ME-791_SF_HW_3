@@ -26,11 +26,11 @@ protected:
     
 public:
     int num_indv = 1;
-    int x_dim = 13;
-    int y_dim = 13;
+    int x_dim = 10;
+    int y_dim = 10;
     int num_states = x_dim*y_dim;
-    int goal_x = 10;
-    int goal_y = 10;
+    int goal_x = 6;
+    int goal_y = 6;
     int goal_state = goal_x + (goal_y*x_dim);
     double goal_reward = 100.0;
     int agent_start_x = 0;
@@ -39,9 +39,10 @@ public:
     double epsilon = 0.1;
     double alpha = 0.1;
     double gamma = 0.9;
-    int num_tries = 350;
-    int num_sr = 30;
+    int num_tries = 1;
+    int num_sr = 1;
     int test_F_counter = 0;
+    vector <int> walls;
     
     
     
